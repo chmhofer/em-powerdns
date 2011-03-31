@@ -18,10 +18,10 @@ module EventMachine::Protocols
     SEPARATOR = "\t"
     EVENT_MAP = Hash.new(:receive_garbage)
     EVENT_MAP.update(
-      'HELO' => :receive_raw_handshake,
-      'Q'    => :receive_raw_query,
-      'AXFR' => :receive_raw_axfr,
-      'PING' => :receive_raw_ping
+        'HELO' => :receive_raw_handshake,
+        'Q' => :receive_raw_query,
+        'AXFR' => :receive_raw_axfr,
+        'PING' => :receive_raw_ping
     )
 
     def self.start
@@ -43,7 +43,7 @@ module EventMachine::Protocols
 
     def receive_raw_handshake(*parts)
       @version = parts.first.to_i
-      if [1,2].include?(@version)
+      if [1, 2].include?(@version)
         receive_handshake(@version)
       else
         fail "Received unexpected handshake: #{parts.inspect}"
@@ -105,35 +105,38 @@ module EventMachine::Protocols
       fail "An unexpected error occurred in backend: #{error.original_exception.message}"
       raise error
     end
+
     module Output
-    def ok(line)
-      send_line "OK", line
-    end
+      def ok(line)
+        send_line "OK", line
+      end
 
-    def data(*parts)
-      send_line "DATA", *parts
-    end
+      def data(*parts)
+        send_line "DATA", *parts
+      end
 
-    def log(line)
-      send_line "LOG", line
-    end
+      def log(line)
+        send_line "LOG", line
+      end
 
-    def fail(line = nil)
-      log(line) if line
-      send_line "FAIL"
-    end
+      def fail(line = nil)
+        log(line) if line
+        send_line "FAIL"
+      end
 
-    def done(line = nil)
-      log(line) if line
-      send_line "END"
-    end
+      def done(line = nil)
+        log(line) if line
+        send_line "END"
+      end
 
-    def send_line(*parts)
-      send_data parts.join(PowerDNS::Connection::SEPARATOR)
-    end
+      def send_line(*parts)
+        send_data parts.join(PowerDNS::Connection::SEPARATOR)
+      end
 
-    def send_data(data)
-      $stdout.puts data
+      def send_data(data)
+        $stdout.puts data
+      end
     end
   end
 end
+
