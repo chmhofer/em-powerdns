@@ -2,7 +2,41 @@ require 'eventmachine'
 
 # Instances of this class wrap the PowerDNS I/O stream with a nice API
 module EventMachine::Protocols
+
+  module Output
+    def ok(line)
+      send_line "OK", line
+    end
+
+    def data(*parts)
+      send_line "DATA", *parts
+    end
+
+    def log(line)
+      send_line "LOG", line
+    end
+
+    def fail(line = nil)
+      log(line) if line
+      send_line "FAIL"
+    end
+
+    def done(line = nil)
+      log(line) if line
+      send_line "END"
+    end
+
+    def send_line(*parts)
+      send_data parts.join(PowerDNS::SEPARATOR)
+    end
+
+    def send_data(data)
+      $stdout.puts data
+    end
+  end
+
   module PowerDNS
+
     class Error < RuntimeError
       attr_reader :original_exception
 
@@ -106,37 +140,6 @@ module EventMachine::Protocols
       raise error
     end
 
-    module Output
-      def ok(line)
-        send_line "OK", line
-      end
-
-      def data(*parts)
-        send_line "DATA", *parts
-      end
-
-      def log(line)
-        send_line "LOG", line
-      end
-
-      def fail(line = nil)
-        log(line) if line
-        send_line "FAIL"
-      end
-
-      def done(line = nil)
-        log(line) if line
-        send_line "END"
-      end
-
-      def send_line(*parts)
-        send_data parts.join(PowerDNS::Connection::SEPARATOR)
-      end
-
-      def send_data(data)
-        $stdout.puts data
-      end
-    end
   end
 end
 
